@@ -47,8 +47,50 @@ fn main() {
       println!("{}", self.age);
       self
     }
+    // 後に実装する予定のものは`todo!()`マクロで記述すると便利
+    fn attack(&self, target: Person) -> Person {
+      todo!()
+    }
   }
   // 実行
   let p = Person::new("taro", 33);
   p.say_name().say_age();
+
+  // trait関連
+  // 異なる構造体で共通して使いそうなものをtraitとして定義
+  trait Tweet {
+    // tweetはimplとして実装する
+    fn tweet(&self);
+    fn tweet_twice(&self) {
+      self.tweet();
+      self.tweet();
+    }
+    fn shout(&self) {
+      println!("Fooooooo!");
+    }
+  }
+  struct Dove;
+  struct Duck;
+  // ここでtweetを実装
+  impl Tweet for Dove {
+    fn tweet(&self) {
+      println!("Coo!");
+    }
+  }
+  impl Tweet for Duck {
+    fn tweet(&self) {
+      println!("Quack!");
+    }
+  }
+  let dove = Dove {};
+  dove.tweet();
+  dove.tweet_twice();
+  dove.shout();
+  let duck = Duck {};
+  // 型が異なるけど同一のtraitを持っているのでBoxを使ってVecをつくれる．
+  // 同じメソッドを実行可能
+  let bird_vec: Vec<Box<dyn Tweet>> = vec![Box::new(dove), Box::new(duck)];
+  for bird in bird_vec {
+    bird.tweet();
+  }
 }
