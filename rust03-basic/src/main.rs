@@ -31,18 +31,24 @@ fn main() {
   }
 
   impl Person {
-    fn say_name(&self) {
-      println!("{}", self.name)
+    // コンストラクタ
+    fn new(name: &str, age: i32) -> Person {
+      Person {
+        name: name.to_string(),
+        age: age,
+      }
     }
-    fn say_age(&self) {
-      println!("{}", self.age)
+    // 返り値をSelfにすることでメソッドチェーンを組める
+    fn say_name(&self) -> &Self {
+      println!("{}", self.name);
+      self
+    }
+    fn say_age(&self) -> &Self {
+      println!("{}", self.age);
+      self
     }
   }
-
-  let p = Person {
-    name: "taro".to_string(),
-    age: 33,
-  };
-  p.say_name();
-  p.say_age();
+  // 実行
+  let p = Person::new("taro", 33);
+  p.say_name().say_age();
 }
