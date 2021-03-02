@@ -93,4 +93,13 @@ fn main() {
   for bird in bird_vec {
     bird.tweet();
   }
+
+  // ジェネリクス
+  // 型を指定せずに，どんな型でも同じ処理をできるようにする
+  fn make_tupple<T, S>(t: T, s: S) -> (T, S) {
+    (t, s)
+  }
+  println!("{:?}", make_tupple(1, 2));
+  println!("{:?}", make_tupple("hello", "world"));
+  println!("{:?}", make_tupple(vec![1, 2, 3], vec![4, 5, 6]));
 }
