@@ -39,7 +39,40 @@ impl RpnCulculator {
   }
 
   fn eval_inner(&self, tokens: &mut Vec<&str>) -> i32 {
-    0
+    // スタック用配列
+    let mut stack = vec![];
+    // pop()は後から取り出すので，eval関数で逆順にしている
+    while let Some(token) = tokens.pop() {
+      if let Ok(x) = token.parse::<i32>() {
+        // i32で取れたらスタックに追加
+        stack.push(x);
+      } else {
+        // 演算子が来たらスタックから2つ取り出す
+        let y = stack.pop().expect("invailed syntax");
+        let x = stack.pop().expect("invailed syntax");
+        // 演算子によってそれぞれの計算を行う
+        let res = match token {
+          "+" => x + y,
+          "-" => x - y,
+          "*" => x * y,
+          "/" => x / y,
+          "%" => x % y,
+          _ => panic!("invailed token"),
+        };
+        // 計算結果をスタックに追加する
+        stack.push(res);
+      }
+      // -vがある場合に途中結果を出力する
+      if self.0 {
+        println!("{:?} {:?}", tokens, stack);
+      }
+    }
+    // スタックが一つの数値になったら結果を出力する
+    if stack.len() == 1 {
+      stack[0]
+    } else {
+      panic!("invailed syntax")
+    }
   }
 }
 
