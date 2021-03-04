@@ -3,6 +3,7 @@ use anyhow::{bail, ensure, Context, Result};
 use clap::Clap;
 use std::fs::File;
 use std::io::{stdin, BufRead, BufReader};
+use std::path::PathBuf;
 
 #[derive(Clap, Debug)]
 #[clap(
@@ -19,7 +20,7 @@ struct Opts {
   verbose: bool,
   #[clap(name = "FILE")]
   // Optionにすることで，任意の引数である旨を表せる
-  formula_file: Option<String>,
+  formula_file: Option<PathBuf>,
   // デフォルト値の設定
   // #[clap(name = "FILE", default_value = "default.txt")]
   // formula_file: String,
@@ -71,6 +72,7 @@ impl RpnCulculator {
         println!("{:?} {:?}", tokens, stack);
       }
     }
+    // 第1引数がErrの場合は自動で第2引数のメッセージを出力する
     ensure!(stack.len() == 1, "invalid syntax");
     Ok(stack[0])
   }
