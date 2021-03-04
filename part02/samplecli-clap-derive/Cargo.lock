@@ -156,7 +156,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "samplecli-clap-derive"
+name = "rpncalc"
 version = "0.1.0"
 dependencies = [
  "anyhow",
