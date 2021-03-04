@@ -118,3 +118,30 @@ fn run<R: BufRead>(reader: R, verbose: bool) {
     println!("{}", answer);
   }
 }
+
+// cargo buildやcargo runの場合は実行されない
+#[cfg(test)]
+mod tests {
+  // testモジュールで有効なすべての構造体や関数を使えるようにする
+  use super::*;
+
+  #[test]
+  fn test_ok() {
+    let calc = RpnCulculator::new(false);
+    assert_eq!(calc.eval("5"), 5);
+    assert_eq!(calc.eval("50"), 50);
+    assert_eq!(calc.eval("-50"), -50);
+    assert_eq!(calc.eval("2 3 +"), 5);
+    assert_eq!(calc.eval("2 3 *"), 6);
+    assert_eq!(calc.eval("2 3 -"), -1);
+    assert_eq!(calc.eval("2 3 /"), 0);
+    assert_eq!(calc.eval("2 3 %"), 2);
+  }
+
+  #[test]
+  #[should_panic]
+  fn test_ng() {
+    let calc = RpnCulculator::new(false);
+    calc.eval("1 1 ^");
+  }
+}
