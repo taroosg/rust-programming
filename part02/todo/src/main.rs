@@ -1,4 +1,3 @@
-// p211から
 use actix_web::{get, http::header, post, web, App, HttpResponse, HttpServer, ResponseError};
 use askama::Template;
 use r2d2::Pool;
@@ -125,7 +124,8 @@ async fn main() -> Result<(), actix_web::Error> {
       .service(delete_todo)
       .data(pool.clone())
   })
-  .bind("127.0.0.1:8087")?
+  // ここは0.0.0.0にしないと死ぬ
+  .bind("0.0.0.0:8087")?
   .run()
   .await?;
   Ok(())
