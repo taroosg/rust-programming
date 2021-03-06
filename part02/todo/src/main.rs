@@ -83,6 +83,20 @@ async fn add_todo(
   )
 }
 
+#[post("/delete")]
+async fn delete_todo(
+  params: web::Form<DeleteParams>,
+  db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
+) -> Result<HttpResponse, MyError> {
+  let conn = db.get()?;
+  conn.execute("DELETE FROM todo WHERE id=?", &[&params.id])?;
+  Ok(
+    HttpResponse::SeeOther()
+      .header(header::LOCATION, "/")
+      .finish(),
+  )
+}
+
 // actix_webのバージョンが上がってactix_rt使わなくても良くなった模様
 #[actix_web::main]
 async fn main() -> Result<(), actix_web::Error> {
@@ -108,6 +122,7 @@ async fn main() -> Result<(), actix_web::Error> {
     App::new()
       .service(index)
       .service(add_todo)
+      .service(delete_todo)
       .data(pool.clone())
   })
   .bind("127.0.0.1:8087")?
