@@ -1,10 +1,25 @@
-use actix_web::{get, web, App, HttpResponse, HttpServer, ResponseError};
+// p211から
+use actix_web::{get, http::header, post, web, App, HttpResponse, HttpServer, ResponseError};
 use askama::Template;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::params;
+use serde::Deserialize;
 use thiserror::Error;
 
+// データ追加用の構造体
+#[derive(Deserialize)]
+struct AddParams {
+  text: String,
+}
+
+// データ削除用の構造体
+#[derive(Deserialize)]
+struct DeleteParams {
+  id: u32,
+}
+
+// 取得したデータの構造体
 struct TodoEntry {
   id: u32,
   text: String,
@@ -54,15 +69,31 @@ async fn index(db: web::Data<Pool<SqliteConnectionManager>>) -> Result<HttpRespo
   )
 }
 
+#[post("/add")]
+async fn add_todo(
+  params: web::Form<AddParams>,
+  db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
+) -> Result<HttpResponse, MyError> {
+  let conn = db.get()?;
+  conn.execute("INSERT INTO todo (text) VALUES (?)", &[&params.text])?;
+  Ok(
+    HttpResponse::SeeOther()
+      .header(header::LOCATION, "/")
+      .finish(),
+  )
+}
+
 // actix_webのバージョンが上がってactix_rt使わなくても良くなった模様
 #[actix_web::main]
 async fn main() -> Result<(), actix_web::Error> {
   // コネクションプールを作成
   let manager = SqliteConnectionManager::file("todo.db");
   let pool = Pool::new(manager).expect("Failed to initialize the connection pool.");
+  // DB接続
   let conn = pool
     .get()
     .expect("Failed to get the connection from the pool.");
+  // SQL実行
   conn
     .execute(
       "CREATE TABLE IF NOT EXISTS todo (
@@ -73,9 +104,14 @@ async fn main() -> Result<(), actix_web::Error> {
     )
     .expect("Failed to create a table `todo`.");
 
-  HttpServer::new(move || App::new().service(index).data(pool.clone()))
-    .bind("127.0.0.1:8087")?
-    .run()
-    .await?;
+  HttpServer::new(move || {
+    App::new()
+      .service(index)
+      .service(add_todo)
+      .data(pool.clone())
+  })
+  .bind("127.0.0.1:8087")?
+  .run()
+  .await?;
   Ok(())
 }
