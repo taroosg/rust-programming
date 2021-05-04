@@ -1,0 +1,30 @@
+[package]
+authors = ["taroosg <root@taroosg.dev>"]
+edition = "2018"
+name = "library"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+# クレート名を同じフィーチャ名はつけられない
+# デフォルトで有効になるフィーチャ
+default = ["parallel", "serde"]
+
+# specialは依存関係を持たないフィーチャ
+special = []
+
+# 依存クレートを持つフィーチャ
+# parallelフィーチャが有効になるとcrossbeamクレートも有効になる
+parallel = ["crossbeam"]
+
+# 依存クレートのフィーチャを有効にするフィーチャ
+# crossbeamクレートのnightlyフィーチャを示す
+nightly = ["crossbeam/nightly"]
+
+# いろいろな依存関係を混ぜた例
+full = ["crossbeam/nightly", "parallel", "serde"]
+
+[dependencies]
+crossbeam = {version = "0.7.3", optional = true}
+serde = {version = "1.0.111", optional = true}
